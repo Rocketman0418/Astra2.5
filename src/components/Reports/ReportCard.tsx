@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, Play, BarChart3 } from 'lucide-react';
+import { Calendar, Clock, Play, BarChart3, Trash2 } from 'lucide-react';
 import { ReportMessage } from '../../types';
 import { VisualizationButton } from '../VisualizationButton';
 
@@ -8,6 +8,7 @@ interface ReportCardProps {
   onCreateVisualization?: (messageId: string, messageText: string) => void;
   onViewVisualization?: (messageId: string) => void;
   onRunReport?: (reportTitle: string) => void;
+  onDeleteMessage?: (messageId: string) => void;
   visualizationState?: any;
 }
 
@@ -97,12 +98,31 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   onCreateVisualization,
   onViewVisualization,
   onRunReport,
+  onDeleteMessage,
   visualizationState
 }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
   if (message.isUser) return null; // Don't show user prompts in report cards
 
   const reportMeta = message.reportMetadata;
   const isManualRun = reportMeta?.is_manual_run;
+  
+  // Extract summary (first paragraph or first 300 characters)
+  const fullText = message.text;
+  const firstParagraphEnd = fullText.indexOf('\n\n');
+  const summaryText = firstParagraphEnd > 0 && firstParagraphEnd < 300 
+    ? fullText.substring(0, firstParagraphEnd)
+    : fullText.substring(0, 300);
+  
+  const needsExpansion = fullText.length > summaryText.length;
+  const displayText = isExpanded ? fullText : summaryText;
+  
+  const handleDeleteMessage = () => {
+    if (window.confirm('Are you sure you want to delete this report instance? This will not affect your scheduled report configuration.')) {
+      onDeleteMessage?.(message.id);
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-lg overflow-hidden">
@@ -140,6 +160,16 @@ export const ReportCard: React.FC<ReportCardProps> = ({
           </div>
           
           {onRunReport && reportMeta?.report_title && (
+            <div className="flex items-center space-x-2">
+              {onDeleteMessage && (
+                <button
+                  onClick={handleDeleteMessage}
+                  className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  title="Delete this report instance"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             <button
               onClick={() => onRunReport(reportMeta.report_title)}
               className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -148,6 +178,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               <Play className="w-4 h-4" />
               <span>Run Again</span>
             </button>
+            </div>
           )}
         </div>
       </div>
@@ -155,8 +186,18 @@ export const ReportCard: React.FC<ReportCardProps> = ({
       {/* Report Content */}
       <div className="p-6">
         <div className="prose prose-invert max-w-none">
-          {formatMessageText(message.text)}
+          {formatMessageText(displayText + (needsExpansion && !isExpanded ? '...' : ''))}
         </div>
+        
+        {/* Show More/Less Button */}
+        {needsExpansion && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+          >
+            {isExpanded ? 'Show Less' : 'Show More'}
+          </button>
+        )}
       </div>
 
       {/* Report Footer */}

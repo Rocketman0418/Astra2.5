@@ -260,6 +260,33 @@ export const useReports = () => {
     saveReportConfigs(updatedConfigs);
   }, [reportConfigs, saveReportConfigs]);
 
+  // Delete a specific report message instance
+  const deleteReportMessage = useCallback(async (messageId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('astra_chats')
+        .delete()
+        .eq('id', messageId)
+        .eq('user_id', user.id)
+        .eq('mode', 'reports');
+
+      if (error) {
+        console.error('Error deleting report message:', error);
+        throw new Error('Failed to delete report message');
+      }
+
+      // Remove from local state
+      setReportMessages(prev => prev.filter(msg => msg.id !== messageId));
+      
+      console.log('✅ Deleted report message:', messageId);
+    } catch (err) {
+      console.error('Error in deleteReportMessage:', err);
+      throw err;
+    }
+  }, [user]);
+
   // Check for scheduled reports (called by scheduler)
   const checkScheduledReports = useCallback(() => {
     const now = new Date();
@@ -298,6 +325,7 @@ export const useReports = () => {
     updateReport,
     deleteReport,
     checkScheduledReports,
-    setError
+    setError,
+    deleteReportMessage
   };
 };

@@ -18,7 +18,8 @@ export const ReportsView: React.FC = () => {
     updateReport,
     deleteReport,
     checkScheduledReports,
-    setError
+    setError,
+    deleteReportMessage
   } = useReports();
 
   const {
@@ -105,6 +106,16 @@ export const ReportsView: React.FC = () => {
     console.log('❌ Reports: No visualization data found for message:', messageId);
   };
 
+  // Handle deleting a report message instance
+  const handleDeleteReportMessage = async (messageId: string) => {
+    try {
+      await deleteReportMessage(messageId);
+    } catch (error) {
+      console.error('Error deleting report message:', error);
+      setError('Failed to delete report. Please try again.');
+    }
+  };
+
   // Handle running a report again
   const handleRunReport = (reportTitle: string) => {
     const config = reportConfigs.find(c => c.title === reportTitle);
@@ -138,8 +149,8 @@ export const ReportsView: React.FC = () => {
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">AI Reports</h1>
-              <p className="text-gray-400 text-sm">Automated insights delivered on schedule</p>
+              <h1 className="text-xl font-bold text-white">Astra Reports</h1>
+              <p className="text-gray-400 text-sm">AI insights delivered on schedule</p>
             </div>
           </div>
           
@@ -243,6 +254,7 @@ export const ReportsView: React.FC = () => {
                   onCreateVisualization={handleCreateVisualization}
                   onViewVisualization={handleViewVisualization}
                   onRunReport={handleRunReport}
+                  onDeleteMessage={handleDeleteReportMessage}
                   visualizationState={visualizationStates[message.chatId || message.id]}
                 />
               ))}
