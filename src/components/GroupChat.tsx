@@ -617,42 +617,24 @@ export const GroupChat: React.FC<GroupChatProps> = ({
         )}
 
         <div className="flex items-end space-x-3 max-w-4xl mx-auto">
-          {/* Image Upload Button */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="p-3 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center touch-manipulation"
-            title="Upload image"
-          >
-            <ImageIcon className="w-5 h-5 text-gray-400" />
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-
           {/* Message Input */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative flex items-end space-x-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
             <MentionInput
               value={inputValue}
               onChange={setInputValue}
               onSend={handleSendMessage}
               disabled={loading}
               placeholder="Send a message to the team... (use @astra to ask AI)"
+              onImageUpload={() => fileInputRef.current?.click()}
             />
           </div>
-
-          {/* Send Button */}
-          <button
-            onClick={handleSendMessage}
-            disabled={loading || (!inputValue.trim() && !selectedImage)}
-            className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed min-h-[48px] min-w-[48px] flex items-center justify-center touch-manipulation"
-          >
-            <Send className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </div>
