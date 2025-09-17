@@ -161,48 +161,39 @@ export const ReportCard: React.FC<ReportCardProps> = ({
             </div>
           </div>
           
-          {onRunReport && reportMeta?.report_title && (
-            <div className="flex items-center space-x-2">
-              {onDeleteMessage && (
-                <button
-                  onClick={handleDeleteMessage}
-                  className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                  title="Delete this report instance"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-              {onDeleteMessage && (
-                <button
-                  onClick={handleDeleteMessage}
-                  className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                  title="Delete this report instance"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-            <button
-              onClick={() => !isReportRunning && onRunReport(reportMeta.report_title)}
-              disabled={isReportRunning}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isReportRunning
-                  ? 'bg-purple-600 cursor-not-allowed animate-pulse'
-                  : 'bg-blue-600 hover:bg-blue-700'
-              } text-white`}
-              title={isReportRunning ? 'Report is running...' : 'Run this report again'}
-            >
-              <Play className={`w-4 h-4 ${isReportRunning ? 'animate-spin' : ''}`} />
-              <span>{isReportRunning ? 'Running...' : 'Run Again'}</span>
-              {isReportRunning && (
-                <div className="flex space-x-1 ml-1">
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              )}
-            </button>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            {onDeleteMessage && (
+              <button
+                onClick={handleDeleteMessage}
+                className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                title="Delete this report instance"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+            {onRunReport && reportMeta?.report_title && (
+              <button
+                onClick={() => !isReportRunning && onRunReport(reportMeta.report_title)}
+                disabled={isReportRunning}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isReportRunning
+                    ? 'bg-purple-600 cursor-not-allowed animate-pulse'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                } text-white`}
+                title={isReportRunning ? 'Report is running...' : 'Run this report again'}
+              >
+                <Play className={`w-4 h-4 ${isReportRunning ? 'animate-spin' : ''}`} />
+                <span>{isReportRunning ? 'Running...' : 'Run Again'}</span>
+                {isReportRunning && (
+                  <div className="flex space-x-1 ml-1">
+                    <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
