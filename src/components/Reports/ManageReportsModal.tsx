@@ -18,7 +18,7 @@ export const ManageReportsModal: React.FC<ManageReportsModalProps> = ({
   reportConfigs,
   onUpdateReport,
   onDeleteReport,
-  onExecuteReport
+  onExecuteReport,
   runningReports = new Set()
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
