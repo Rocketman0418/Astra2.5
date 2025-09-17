@@ -187,10 +187,6 @@ export const useChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -443,6 +439,10 @@ export const useChat = () => {
       setIsLoading(false);
     }
   }, [isLoading, logChatMessage, currentConversationId, updateVisualizationStatus, user, userProfile, replyState]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   // Force refresh of current messages after logging to ensure UI stays in sync
   const refreshMessages = useCallback(async () => {
