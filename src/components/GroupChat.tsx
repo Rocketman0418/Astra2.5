@@ -618,7 +618,7 @@ export const GroupChat: React.FC<GroupChatProps> = ({
 
         <div className="flex items-end space-x-3 max-w-4xl mx-auto">
           {/* Message Input */}
-          <div className="flex-1 relative flex items-end space-x-3">
+          <div className="w-full relative">
             <input
               ref={fileInputRef}
               type="file"
@@ -631,7 +631,7 @@ export const GroupChat: React.FC<GroupChatProps> = ({
               onChange={setInputValue}
               onSend={handleSendMessage}
               disabled={loading}
-              placeholder="Send a message to the team... (use @astra to ask AI)"
+              placeholder="Send a message...use @astra for Astra Intelligence"
               onImageUpload={() => fileInputRef.current?.click()}
             />
           </div>
