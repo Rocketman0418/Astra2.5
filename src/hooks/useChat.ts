@@ -136,55 +136,6 @@ export const useChat = () => {
     }
   }, [currentMessages, currentConversationId, chatsLoading]);
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || isLoading) return;
-
-    let messageToSend = text.trim();
-    let isReplyMessage = false;
-    
-    // Check if we're in reply mode
-    if (replyState.isReplying && replyState.messageId) {
-      messageToSend = `@reply ${replyState.messageId} ${text.trim()}`;
-      isReplyMessage = true;
-      console.log('🔄 Sending reply message:', messageToSend);
-    }
-
-    // Check if webhook URL is configured
-    if (!WEBHOOK_URL) {
-      console.error('N8N webhook URL not configured');
-      const errorMessage: Message = {
-        id: `${uuidv4()}-error`,
-        text: "Configuration error: N8N webhook URL not set. Please check your environment variables.",
-        isUser: false,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      return;
-    }
-
-    // Get user information
-    const userId = user?.id || '';
-    const userEmail = user?.email || '';
-    const userName = userProfile?.name || user?.email?.split('@')[0] || 'Unknown User';
-
-    const messageId = uuidv4();
-    const startTime = Date.now();
-    const userMessage: Message = {
-      id: `${messageId}-user`,
-      text: messageToSend,
-      isUser: true,
-      timestamp: new Date(),
-      messageType: 'user',
-      isReply: isReplyMessage,
-      replyToId: replyState.isReplying ? replyState.messageId : undefined
-    };
-
-    // Add user message to UI immediately
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
-  }
-  )
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
