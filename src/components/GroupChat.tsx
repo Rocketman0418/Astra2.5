@@ -58,7 +58,6 @@ export const GroupChat: React.FC<GroupChatProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GroupMessageType[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [selectedImage, setSelectedImage] = useState<{ url: string; filename: string; size: number } | null>(null);
   const [replyState, setReplyState] = useState<ReplyState>({
     isReplying: false,
@@ -68,6 +67,10 @@ export const GroupChat: React.FC<GroupChatProps> = ({
   });
   const [visualizationStates, setVisualizationStates] = useState<Record<string, any>>({});
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [showTeamMembers, setShowTeamMembers] = useState(false);
+  const [showSummarizeOptions, setShowSummarizeOptions] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -230,13 +233,14 @@ export const GroupChat: React.FC<GroupChatProps> = ({
   };
 
   // Handle search
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) return;
 
     setIsSearching(true);
     try {
-      const results = await searchMessages(searchQuery);
+      const results = await searchMessages(query);
       setSearchResults(results);
+      setShowSearchResults(true);
     } catch (error) {
       console.error('Search error:', error);
       setError('Search failed. Please try again.');
@@ -244,6 +248,59 @@ export const GroupChat: React.FC<GroupChatProps> = ({
       setIsSearching(false);
     }
   };
+
+  // Handle team members
+  const handleShowTeamMembers = () => {
+    setShowTeamMembers(true);
+    onCloseTeamMenu();
+  };
+
+  // Handle summarize chat
+  const handleSummarizeChat = () => {
+    setShowSummarizeOptions(true);
+    onCloseTeamMenu();
+  };
+
+  // Handle summarize with time period
+  const handleSummarizeWithPeriod = async (period: string) => {
+    setShowSummarizeOptions(false);
+    
+    const prompts = {
+      '24hours': 'Please provide a comprehensive summary of our team chat from the last 24 hours. Include key decisions, action items, and important discussions.',
+      '7days': 'Please provide a comprehensive summary of our team chat from the last 7 days. Include key decisions, action items, and important discussions.',
+      '30days': 'Please provide a comprehensive summary of our team chat from the last 30 days. Include key decisions, action items, and important discussions.'
+    };
+
+    const prompt = prompts[period as keyof typeof prompts];
+    if (prompt) {
+      await sendMessage(prompt);
+    }
+  };
+
+  // Team members data
+  const teamMembers = [
+    {
+      name: 'Astra',
+      email: 'AI Intelligence',
+      avatar: '🚀',
+      isAI: true
+    },
+    {
+      name: 'Clay Speakman',
+      email: 'clay@rockethub.ai',
+      avatar: 'C'
+    },
+    {
+      name: 'Derek Tellier',
+      email: 'derek@rockethub.ai',
+      avatar: 'D'
+    },
+    {
+      name: 'Marshall Briggs',
+      email: 'marshall@rockethub.ai',
+      avatar: 'M'
+    }
+  ];
 
   // Handle reply
   const handleReply = useCallback((messageId: string, messageContent: string, userName: string, timestamp: string) => {
@@ -374,43 +431,51 @@ export const GroupChat: React.FC<GroupChatProps> = ({
               </div>
               
               <div className="space-y-2">
-                <button
-                  onClick={() => {
-                    // TODO: Implement team members functionality
-                    console.log('Team Members clicked');
-                  }}
-                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
+                {/* Team Members Button */}
+                <div
+                  onClick={handleShowTeamMembers}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 cursor-pointer flex items-center justify-center space-x-3"
                 >
                   <Users className="w-5 h-5 text-gray-400" />
-                  <span className="text-white">Team Members</span>
-                </button>
+                  <span className="text-lg font-semibold">Team Members</span>
+                </div>
                 
-                <button
-                  onClick={() => {
-                    // TODO: Implement chat summarization functionality
-                    console.log('Summarize Chat clicked');
-                  }}
-                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
+                {/* Summarize Chat Button */}
+                <div
+                  onClick={handleSummarizeChat}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 cursor-pointer flex items-center justify-center space-x-3"
                 >
                   <FileText className="w-5 h-5 text-gray-400" />
-                  <span className="text-white">Summarize Chat</span>
-                </button>
+                  <span className="text-lg font-semibold">Summarize Chat</span>
+                </div>
                 
-                <button
-                  onClick={() => setShowSearch(!showSearch)}
-                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
-                >
-                  <Search className="w-5 h-5 text-gray-400" />
-                  <span className="text-white">Search Messages</span>
-                </button>
+                {/* Search Messages Section */}
+                <div className="mt-6">
+                  <h3 className="text-white font-medium mb-3">Search Messages</h3>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Search messages..."
+                      className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && searchInput.trim()) {
+                          handleSearch(searchInput);
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {!showSearchResults && !isSearching && (
+                    <div className="text-center py-8">
+                      <Search className="w-12 h-12 text-gray-600 mx-auto mb-2" />
+                      <p className="text-gray-400 text-sm">Start typing to search</p>
+                    </div>
+                  )}
+                </div>
                 
-                <button
-                  onClick={() => onSwitchToPrivateChat('new')}
-                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
-                >
-                  <MessageSquare className="w-5 h-5 text-gray-400" />
-                  <span className="text-white">Private Chat</span>
-                </button>
               </div>
 
               {/* Notifications Summary */}
@@ -442,35 +507,137 @@ export const GroupChat: React.FC<GroupChatProps> = ({
         </>
       )}
 
-      {/* Search Bar */}
-      {showSearch && (
-        <div className="bg-gray-800 border-b border-gray-700 p-4">
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search team messages..."
-              className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button
-              onClick={handleSearch}
-              disabled={isSearching}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
-            >
-              {isSearching ? 'Searching...' : 'Search'}
-            </button>
-            <button
-              onClick={() => {
-                setShowSearch(false);
-                setSearchResults([]);
-                setSearchQuery('');
-              }}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-            >
-              Close
-            </button>
+      {/* Team Members Modal */}
+      {showTeamMembers && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <h2 className="text-xl font-bold text-white">Team Members</h2>
+              <button
+                onClick={() => setShowTeamMembers(false)}
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {teamMembers.map((member, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
+                    member.isAI 
+                      ? 'bg-gradient-to-br from-blue-600 to-purple-600' 
+                      : 'bg-gray-600'
+                  }`}>
+                    {member.avatar}
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{member.name}</p>
+                    <p className="text-gray-400 text-sm">{member.email}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Summarize Chat Options Modal */}
+      {showSummarizeOptions && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Summarize Chat</h2>
+              </div>
+              <button
+                onClick={() => setShowSummarizeOptions(false)}
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="p-6 space-y-3">
+              <button
+                onClick={() => handleSummarizeWithPeriod('24hours')}
+                className="w-full text-left p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <span className="text-white font-medium">Last 24 Hours</span>
+              </button>
+              <button
+                onClick={() => handleSummarizeWithPeriod('7days')}
+                className="w-full text-left p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <span className="text-white font-medium">Last 7 Days</span>
+              </button>
+              <button
+                onClick={() => handleSummarizeWithPeriod('30days')}
+                className="w-full text-left p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <span className="text-white font-medium">Last 30 Days</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Results Modal */}
+      {showSearchResults && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-xl border border-gray-700 shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <h2 className="text-xl font-bold text-white">Search Results</h2>
+              <button
+                onClick={() => {
+                  setShowSearchResults(false);
+                  setSearchResults([]);
+                  setSearchInput('');
+                }}
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {isSearching ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-gray-400">Searching...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="space-y-4">
+                  {searchResults.map((result) => (
+                    <div key={result.id} className="bg-gray-700/50 rounded-lg p-4">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          result.message_type === 'astra' 
+                            ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white'
+                            : 'bg-gray-600 text-white'
+                        }`}>
+                          {result.message_type === 'astra' ? '🚀' : result.user_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-blue-300">{result.user_name}</span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(result.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-300">{result.message_content}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400">No results found</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -495,26 +662,6 @@ export const GroupChat: React.FC<GroupChatProps> = ({
             >
               {loadingMore ? 'Loading...' : `Load More (${totalMessageCount - messages.length} remaining)`}
             </button>
-          </div>
-        )}
-
-        {/* Search Results */}
-        {showSearch && searchResults.length > 0 && (
-          <div className="bg-gray-800 rounded-lg p-4 mb-4">
-            <h3 className="text-white font-medium mb-3">Search Results ({searchResults.length})</h3>
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {searchResults.map((result) => (
-                <div key={result.id} className="bg-gray-700 rounded-lg p-3">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm font-medium text-blue-300">{result.user_name}</span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(result.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-300 line-clamp-3">{result.message_content}</p>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
