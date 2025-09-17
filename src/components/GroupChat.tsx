@@ -273,7 +273,15 @@ export const GroupChat: React.FC<GroupChatProps> = ({
 
     const prompt = prompts[period as keyof typeof prompts];
     if (prompt) {
-      await sendMessage(prompt);
+      // Create a new private chat conversation with the summary request
+      const newConversationId = `summary-${Date.now()}`;
+      onSwitchToPrivateChat(newConversationId);
+      
+      // Close the team menu
+      onCloseTeamMenu();
+      
+      // The private chat will handle sending the message and showing "Astra is thinking"
+      // We'll pass the prompt through the conversation switch
     }
   };
 
@@ -457,18 +465,62 @@ export const GroupChat: React.FC<GroupChatProps> = ({
                     <input
                       type="text"
                       value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                      placeholder="Search messages..."
-                      className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && searchInput.trim()) {
-                          handleSearch(searchInput);
+                      onChange={(e) => {
+                        setSearchInput(e.target.value);
+                        if (e.target.value.trim()) {
+                          handleSearch(e.target.value.trim());
+                        } else {
+                          setSearchResults([]);
                         }
                       }}
+                      placeholder="Search messages..."
+                      className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                     />
                   </div>
                   
-                  {!showSearchResults && !isSearching && (
+                  {/* Search Results - Show directly below input */}
+                  {searchInput.trim() && (
+                    <div className="mt-4 max-h-64 overflow-y-auto">
+                      {isSearching ? (
+                        <div className="text-center py-4">
+                          <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-2" />
+                          <p className="text-gray-400 text-sm">Searching...</p>
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        <div className="space-y-3">
+                          {searchResults.map((result) => (
+                            <div key={result.id} className="bg-gray-700/50 rounded-lg p-3">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                  result.message_type === 'astra' 
+                                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white'
+                                    : 'bg-gray-600 text-white'
+                                }`}>
+                                  {result.message_type === 'astra' ? '🚀' : result.user_name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-xs font-medium text-blue-300">{result.user_name}</span>
+                                    <span className="text-xs text-gray-500">
+                                      {new Date(result.created_at).toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-300 line-clamp-3">{result.message_content}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <Search className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                          <p className="text-gray-400 text-sm">No results found</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {!searchInput.trim() && !isSearching && (
                     <div className="text-center py-8">
                       <Search className="w-12 h-12 text-gray-600 mx-auto mb-2" />
                       <p className="text-gray-400 text-sm">Start typing to search</p>

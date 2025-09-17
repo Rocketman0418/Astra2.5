@@ -33,7 +33,17 @@ export const MainContainer: React.FC = () => {
 
   const handleSwitchToPrivateChat = (conversationId: string) => {
     setChatMode('private');
-    setConversationToLoad(conversationId);
+    
+    // Check if this is a summary request (special conversation ID format)
+    if (conversationId.startsWith('summary-')) {
+      // Start a new conversation and set a flag to send the summary prompt
+      setShouldStartNewChat(true);
+      // Store the summary type for the private chat to pick up
+      const summaryType = conversationId.split('-')[1];
+      localStorage.setItem('pendingSummaryRequest', summaryType);
+    } else {
+      setConversationToLoad(conversationId);
+    }
   };
 
   const handleToggleTeamMenu = () => {
