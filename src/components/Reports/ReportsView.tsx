@@ -13,6 +13,7 @@ export const ReportsView: React.FC = () => {
     reportConfigs,
     isLoading,
     error,
+    runningReports,
     executeReport,
     createReport,
     updateReport,
@@ -256,6 +257,9 @@ export const ReportsView: React.FC = () => {
                   onRunReport={handleRunReport}
                   onDeleteMessage={handleDeleteReportMessage}
                   visualizationState={visualizationStates[message.chatId || message.id]}
+                  isReportRunning={message.reportMetadata?.report_title ? runningReports.has(
+                    reportConfigs.find(c => c.title === message.reportMetadata?.report_title)?.id || ''
+                  ) : false}
                 />
               ))}
             </div>
@@ -274,6 +278,7 @@ export const ReportsView: React.FC = () => {
         isOpen={showManageModal}
         onClose={() => setShowManageModal(false)}
         reportConfigs={reportConfigs}
+        runningReports={runningReports}
         onUpdateReport={updateReport}
         onDeleteReport={deleteReport}
         onExecuteReport={executeReport}

@@ -9,6 +9,7 @@ interface ManageReportsModalProps {
   onUpdateReport: (reportId: string, updates: Partial<ReportConfig>) => void;
   onDeleteReport: (reportId: string) => void;
   onExecuteReport: (config: ReportConfig, isManualRun: boolean) => void;
+  runningReports?: Set<string>;
 }
 
 export const ManageReportsModal: React.FC<ManageReportsModalProps> = ({
@@ -18,6 +19,7 @@ export const ManageReportsModal: React.FC<ManageReportsModalProps> = ({
   onUpdateReport,
   onDeleteReport,
   onExecuteReport
+  runningReports = new Set()
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ReportConfig>>({});
@@ -181,11 +183,16 @@ export const ManageReportsModal: React.FC<ManageReportsModalProps> = ({
                       
                       <div className="flex items-center space-x-2 ml-4">
                         <button
-                          onClick={() => onExecuteReport(config, true)}
-                          className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                          title="Run now"
+                          onClick={() => !runningReports.has(config.id) && onExecuteReport(config, true)}
+                          disabled={runningReports.has(config.id)}
+                          className={`p-2 rounded-lg transition-colors text-white ${
+                            runningReports.has(config.id)
+                              ? 'bg-purple-600 cursor-not-allowed animate-pulse'
+                              : 'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                          title={runningReports.has(config.id) ? 'Running...' : 'Run now'}
                         >
-                          <Play className="w-4 h-4" />
+                          <Play className={`w-4 h-4 ${runningReports.has(config.id) ? 'animate-spin' : ''}`} />
                         </button>
                         
                         <button

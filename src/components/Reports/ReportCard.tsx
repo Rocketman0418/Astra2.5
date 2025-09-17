@@ -10,6 +10,7 @@ interface ReportCardProps {
   onRunReport?: (reportTitle: string) => void;
   onDeleteMessage?: (messageId: string) => void;
   visualizationState?: any;
+  isReportRunning?: boolean;
 }
 
 const formatMessageText = (text: string): JSX.Element => {
@@ -99,7 +100,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   onViewVisualization,
   onRunReport,
   onDeleteMessage,
-  visualizationState
+  visualizationState,
+  isReportRunning = false
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   
@@ -171,12 +173,24 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 </button>
               )}
             <button
-              onClick={() => onRunReport(reportMeta.report_title)}
-              className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-              title="Run this report again"
+              onClick={() => !isReportRunning && onRunReport(reportMeta.report_title)}
+              disabled={isReportRunning}
+              className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isReportRunning
+                  ? 'bg-purple-600 cursor-not-allowed animate-pulse'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white`}
+              title={isReportRunning ? 'Report is running...' : 'Run this report again'}
             >
-              <Play className="w-4 h-4" />
-              <span>Run Again</span>
+              <Play className={`w-4 h-4 ${isReportRunning ? 'animate-spin' : ''}`} />
+              <span>{isReportRunning ? 'Running...' : 'Run Again'}</span>
+              {isReportRunning && (
+                <div className="flex space-x-1 ml-1">
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+              )}
             </button>
             </div>
           )}

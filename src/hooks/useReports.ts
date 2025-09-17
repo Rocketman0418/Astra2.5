@@ -13,6 +13,7 @@ export const useReports = () => {
   const [reportConfigs, setReportConfigs] = useState<ReportConfig[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [runningReports, setRunningReports] = useState<Set<string>>(new Set());
 
   // Load report configurations from localStorage
   const loadReportConfigs = useCallback(() => {
@@ -112,9 +113,23 @@ export const useReports = () => {
   const executeReport = useCallback(async (config: ReportConfig, isManualRun = false) => {
     if (!user) return;
 
+    // Prevent multiple executions of the same report
+    if (runningReports.has(config.id)) {
+      console.log('Report already running:', config.title);
+      return;
+    }
+
+    // Mark report as running
+    setRunningReports(prev => new Set(prev).add(config.id));
+
     const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
     if (!WEBHOOK_URL) {
       setError('N8N webhook URL not configured');
+      setRunningReports(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(config.id);
+        return newSet;
+      });
       return;
     }
 
@@ -219,9 +234,17 @@ export const useReports = () => {
       // Refresh report messages
       setTimeout(() => loadReportMessages(), 2000);
 
+      console.log('✅ Report execution completed:', config.title);
     } catch (error) {
       console.error('Error executing report:', error);
       setError(`Failed to execute report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      // Remove from running reports
+      setRunningReports(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(config.id);
+        return newSet;
+      });
     }
   }, [user, logChatMessage, reportConfigs, saveReportConfigs, calculateNextExecution, loadReportMessages]);
 
@@ -319,6 +342,7 @@ export const useReports = () => {
     reportConfigs,
     isLoading,
     error,
+    runningReports,
     loadReportMessages,
     executeReport,
     createReport,
