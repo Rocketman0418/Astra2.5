@@ -3,17 +3,18 @@ import { Header } from './Header';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatContainer } from './ChatContainer';
 import { GroupChat } from './GroupChat';
+import { ReportsView } from './Reports/ReportsView';
 import { ChatModeToggle } from './ChatModeToggle';
 import { ChatMode } from '../types';
 
 export const MainContainer: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chatMode, setChatMode] = useState<ChatMode>('team');
+  const [chatMode, setChatMode] = useState<ChatMode>('reports');
   const [conversationToLoad, setConversationToLoad] = useState<string | null>(null);
   const [shouldStartNewChat, setShouldStartNewChat] = useState(false);
   const [showTeamMenu, setShowTeamMenu] = useState(false);
 
-  // Close sidebar when switching to private chat mode
+  // Close sidebar when switching away from private chat mode
   React.useEffect(() => {
     if (chatMode === 'private') {
       setSidebarOpen(false);
@@ -66,7 +67,9 @@ export const MainContainer: React.FC = () => {
 
         {/* Chat Content */}
         <div className="flex-1 overflow-hidden">
-          {chatMode === 'private' ? (
+          {chatMode === 'reports' ? (
+            <ReportsView />
+          ) : chatMode === 'private' ? (
             <ChatContainer 
               sidebarOpen={sidebarOpen}
               onCloseSidebar={() => setSidebarOpen(false)}

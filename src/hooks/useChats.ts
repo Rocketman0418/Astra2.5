@@ -157,7 +157,7 @@ export const useChats = () => {
     modelUsed?: string,
     metadata?: any,
     visualization?: boolean,
-    mode?: 'private' | 'team',
+    mode?: 'private' | 'team' | 'reports',
     mentions?: string[],
     astraPrompt?: string,
     visualizationData?: string

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Users } from 'lucide-react';
+import { MessageSquare, Users, FileText } from 'lucide-react';
 import { ChatMode } from '../types';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -15,6 +15,18 @@ export const ChatModeToggle: React.FC<ChatModeToggleProps> = ({ mode, onModeChan
 
   return (
     <div className="flex bg-gray-800 rounded-lg p-1 mx-4 my-2">
+      <button
+        onClick={() => onModeChange('reports')}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 flex-1 justify-center ${
+          mode === 'reports'
+            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+        }`}
+      >
+        <FileText className="w-4 h-4" />
+        <span className="text-sm font-medium">Reports</span>
+      </button>
+      
       <button
         onClick={() => onModeChange('private')}
         className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 flex-1 justify-center ${

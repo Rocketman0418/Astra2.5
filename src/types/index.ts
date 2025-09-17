@@ -56,4 +56,27 @@ export interface FavoriteMessage {
   createdAt: Date;
 }
 
-export type ChatMode = 'private' | 'team';
+export type ChatMode = 'reports' | 'private' | 'team';
+
+export interface ReportConfig {
+  id: string;
+  title: string;
+  prompt: string;
+  frequency: 'daily' | 'weekly' | 'monthly';
+  schedule_time: string; // HH:MM format
+  enabled: boolean;
+  created_at: string;
+  last_executed?: string;
+  next_execution?: string;
+}
+
+export interface ReportMessage extends Message {
+  reportMetadata?: {
+    report_type: string;
+    report_title: string;
+    report_frequency: string;
+    report_schedule: string;
+    executed_at: string;
+    is_manual_run: boolean;
+  };
+}
