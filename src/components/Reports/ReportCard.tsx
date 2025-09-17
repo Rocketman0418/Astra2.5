@@ -172,6 +172,15 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
+              {onDeleteMessage && (
+                <button
+                  onClick={handleDeleteMessage}
+                  className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                  title="Delete this report instance"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             <button
               onClick={() => !isReportRunning && onRunReport(reportMeta.report_title)}
               disabled={isReportRunning}
