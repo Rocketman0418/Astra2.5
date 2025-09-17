@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Search, X, Users, MessageSquare, Plus, Image as ImageIcon, Reply } from 'lucide-react';
+import { Send, Search, X, Users, MessageSquare, Plus, Image as ImageIcon, Reply, FileText } from 'lucide-react';
 import { useGroupChat } from '../hooks/useGroupChat';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../hooks/useNotifications';
@@ -364,7 +364,7 @@ export const GroupChat: React.FC<GroupChatProps> = ({
           <div className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-80 bg-gray-800 border-r border-gray-700 z-50 transform transition-transform duration-300 ease-in-out">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white">Team Chat Menu</h2>
+                <h2 className="text-lg font-bold text-white">Team Chat Tools</h2>
                 <button
                   onClick={onCloseTeamMenu}
                   className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -374,6 +374,28 @@ export const GroupChat: React.FC<GroupChatProps> = ({
               </div>
               
               <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    // TODO: Implement team members functionality
+                    console.log('Team Members clicked');
+                  }}
+                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
+                >
+                  <Users className="w-5 h-5 text-gray-400" />
+                  <span className="text-white">Team Members</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // TODO: Implement chat summarization functionality
+                    console.log('Summarize Chat clicked');
+                  }}
+                  className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
+                >
+                  <FileText className="w-5 h-5 text-gray-400" />
+                  <span className="text-white">Summarize Chat</span>
+                </button>
+                
                 <button
                   onClick={() => setShowSearch(!showSearch)}
                   className="w-full flex items-center space-x-2 p-3 hover:bg-gray-700 rounded-lg transition-colors text-left"
