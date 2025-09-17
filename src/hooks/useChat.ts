@@ -136,39 +136,6 @@ export const useChat = () => {
     }
   }, [currentMessages, currentConversationId, chatsLoading]);
 
-  // Load the most recent conversation when component mounts or when returning to private chat
-  useEffect(() => {
-    // Check for pending summary request
-    const pendingSummaryRequest = localStorage.getItem('pendingSummaryRequest');
-    if (pendingSummaryRequest) {
-      localStorage.removeItem('pendingSummaryRequest');
-      
-      const summaryPrompts = {
-        '24hours': 'Please provide a comprehensive summary of our team chat from the last 24 hours. Include key decisions, action items, and important discussions.',
-        '7days': 'Please provide a comprehensive summary of our team chat from the last 7 days. Include key decisions, action items, and important discussions.',
-        '30days': 'Please provide a comprehensive summary of our team chat from the last 30 days. Include key decisions, action items, and important discussions.'
-      };
-      
-      const prompt = summaryPrompts[pendingSummaryRequest as keyof typeof summaryPrompts];
-      if (prompt) {
-        // Auto-send the summary request
-        setTimeout(() => {
-          sendMessage(prompt);
-        }, 500);
-      }
-      return;
-    }
-    
-    if (user && hasInitialized && !currentConversationId) {
-      // If there are existing conversations, load the most recent one
-      if (conversations.length > 0) {
-        const mostRecentConversation = conversations[0];
-        console.log('useChat: Loading most recent conversation:', mostRecentConversation.id);
-        loadConversation(mostRecentConversation.id);
-      }
-    }
-  }, [user, hasInitialized, conversations, currentConversationId, loadConversation, sendMessage]);
-
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
@@ -425,6 +392,39 @@ export const useChat = () => {
       setIsLoading(false);
     }
   }, [isLoading, logChatMessage, currentConversationId, updateVisualizationStatus, user, userProfile, replyState]);
+
+  // Load the most recent conversation when component mounts or when returning to private chat
+  useEffect(() => {
+    // Check for pending summary request
+    const pendingSummaryRequest = localStorage.getItem('pendingSummaryRequest');
+    if (pendingSummaryRequest) {
+      localStorage.removeItem('pendingSummaryRequest');
+      
+      const summaryPrompts = {
+        '24hours': 'Please provide a comprehensive summary of our team chat from the last 24 hours. Include key decisions, action items, and important discussions.',
+        '7days': 'Please provide a comprehensive summary of our team chat from the last 7 days. Include key decisions, action items, and important discussions.',
+        '30days': 'Please provide a comprehensive summary of our team chat from the last 30 days. Include key decisions, action items, and important discussions.'
+      };
+      
+      const prompt = summaryPrompts[pendingSummaryRequest as keyof typeof summaryPrompts];
+      if (prompt) {
+        // Auto-send the summary request
+        setTimeout(() => {
+          sendMessage(prompt);
+        }, 500);
+      }
+      return;
+    }
+    
+    if (user && hasInitialized && !currentConversationId) {
+      // If there are existing conversations, load the most recent one
+      if (conversations.length > 0) {
+        const mostRecentConversation = conversations[0];
+        console.log('useChat: Loading most recent conversation:', mostRecentConversation.id);
+        loadConversation(mostRecentConversation.id);
+      }
+    }
+  }, [user, hasInitialized, conversations, currentConversationId, loadConversation]);
 
   useEffect(() => {
     scrollToBottom();
