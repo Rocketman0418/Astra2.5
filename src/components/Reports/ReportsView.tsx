@@ -88,6 +88,7 @@ export const ReportsView: React.FC = () => {
   const handleViewVisualization = (messageId: string) => {
     console.log('👁️ Reports: handleViewVisualization called for messageId:', messageId);
     
+    // Find the message to get visualization data
     const message = reportMessages.find(m => m.chatId === messageId || m.id === messageId);
     
     if (message?.visualization_data) {
@@ -97,9 +98,21 @@ export const ReportsView: React.FC = () => {
       return;
     }
     
+    // Check local state
     const localState = visualizationStates[messageId];
-    if (localState?.content && localState.content !== 'generated') {
+    if (localState?.content) {
       console.log('📊 Reports: Using local state visualization data');
+      if (localState.content !== 'generated') {
+        setVisualizationContent(messageId, localState.content);
+      }
+      showVisualization(messageId);
+      return;
+    }
+    
+    // Check hook state for visualization content
+    const hookVisualization = getVisualization(messageId);
+    if (hookVisualization?.content) {
+      console.log('📊 Reports: Using hook visualization data');
       showVisualization(messageId);
       return;
     }
