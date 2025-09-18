@@ -10,22 +10,25 @@ interface CreateReportModalProps {
 
 const REPORT_TEMPLATES = [
   {
-    title: 'Daily AI News Summary',
-    prompt: 'Provide a comprehensive summary of the latest AI and technology news from today. Include major developments, breakthrough research, industry announcements, and emerging trends. Format the response with clear sections and bullet points.',
+    title: 'Daily News Brief',
+    prompt: 'Provide a brief summary of the AI News and Education emails from the last 24 hours. Focus on the top 3 impacts to our business, and a recommendation of actions for each one. Include a section on new features, upgrades or AI tools that we might consider using and for what areas of the business. Format the response with clear sections and bullet points.',
     frequency: 'daily' as const,
-    schedule_time: '07:00'
+    schedule_time: '07:00',
+    start_date: undefined
   },
   {
-    title: 'Weekly Market Analysis',
-    prompt: 'Analyze the key market trends and business developments from this week. Include stock market performance, economic indicators, major corporate news, and industry insights. Provide actionable insights and predictions.',
+    title: 'Weekly Action Items',
+    prompt: 'From our most recent L10 meeting, please provide a detailed list of action items that I need to complete or focus on this week.',
     frequency: 'weekly' as const,
-    schedule_time: '09:00'
+    schedule_time: '09:00',
+    start_date: 'monday'
   },
   {
-    title: 'Monthly Industry Report',
-    prompt: 'Create a comprehensive monthly report on technology industry trends, including startup funding, product launches, regulatory changes, and market analysis. Include charts and data where relevant.',
+    title: 'Monthly Financial Analysis',
+    prompt: 'Summarize the company financials and generate a cash-flow statement and burn-rate analysis',
     frequency: 'monthly' as const,
-    schedule_time: '08:00'
+    schedule_time: '09:00',
+    start_date: '1'
   }
 ];
 
@@ -34,11 +37,22 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
   onClose,
   onCreateReport
 }) => {
+  // Helper function to get ordinal suffix
+  const getOrdinalSuffix = (num: number): string => {
+    const j = num % 10;
+    const k = num % 100;
+    if (j === 1 && k !== 11) return 'st';
+    if (j === 2 && k !== 12) return 'nd';
+    if (j === 3 && k !== 13) return 'rd';
+    return 'th';
+  };
+
   const [formData, setFormData] = useState({
     title: '',
     prompt: '',
     frequency: 'daily' as 'daily' | 'weekly' | 'monthly',
     schedule_time: '07:00',
+    start_date: '',
     enabled: true
   });
 
@@ -47,6 +61,11 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.prompt.trim()) return;
+    
+    // Validate start_date for weekly/monthly frequencies
+    if ((formData.frequency === 'weekly' || formData.frequency === 'monthly') && !formData.start_date) {
+      return; // Form validation will show required field error
+    }
 
     onCreateReport(formData);
     onClose();
@@ -57,6 +76,7 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
       prompt: '',
       frequency: 'daily',
       schedule_time: '07:00',
+      start_date: '',
       enabled: true
     });
     setActiveTab('template');
@@ -68,7 +88,8 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
       title: template.title,
       prompt: template.prompt,
       frequency: template.frequency,
-      schedule_time: template.schedule_time
+      schedule_time: template.schedule_time,
+      start_date: template.start_date || ''
     });
     setActiveTab('custom');
   };
@@ -138,6 +159,14 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
                       <span className="capitalize">{template.frequency}</span>
                       <Clock className="w-3 h-3 ml-2" />
                       <span>{template.schedule_time}</span>
+                      {template.start_date && (
+                        <>
+                          <span className="ml-2">•</span>
+                          <span className="capitalize">
+                            {template.frequency === 'weekly' ? template.start_date : `${template.start_date}${getOrdinalSuffix(parseInt(template.start_date))}`}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <p className="text-sm text-gray-400 line-clamp-2">
@@ -179,7 +208,7 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
               </div>
 
               {/* Frequency and Schedule */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Frequency
@@ -194,6 +223,44 @@ export const CreateReportModal: React.FC<CreateReportModalProps> = ({
                     <option value="monthly">Monthly</option>
                   </select>
                 </div>
+
+                {/* Start Date - only show for Weekly and Monthly */}
+                {(formData.frequency === 'weekly' || formData.frequency === 'monthly') && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      {formData.frequency === 'weekly' ? 'Start Day' : 'Start Date'}
+                    </label>
+                    {formData.frequency === 'weekly' ? (
+                      <select
+                        value={formData.start_date}
+                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                        required
+                      >
+                        <option value="">Select day</option>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                      </select>
+                    ) : (
+                      <select
+                        value={formData.start_date}
+                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                        required
+                      >
+                        <option value="">Select date</option>
+                        {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                          <option key={day} value={day.toString()}>{day}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">

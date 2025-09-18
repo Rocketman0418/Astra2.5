@@ -64,6 +64,7 @@ export interface ReportConfig {
   prompt: string;
   frequency: 'daily' | 'weekly' | 'monthly';
   schedule_time: string; // HH:MM format
+  start_date?: string; // Day of week for weekly, day of month for monthly
   enabled: boolean;
   created_at: string;
   last_executed?: string;
