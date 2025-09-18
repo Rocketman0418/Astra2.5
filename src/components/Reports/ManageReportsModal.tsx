@@ -124,6 +124,43 @@ export const ManageReportsModal: React.FC<ManageReportsModalProps> = ({
                           <option value="monthly">Monthly</option>
                         </select>
                         
+                        {/* Start Date - only show for Weekly and Monthly */}
+                        {(editForm.frequency === 'weekly' || editForm.frequency === 'monthly') && (
+                          <div>
+                            {editForm.frequency === 'weekly' ? (
+                              <select
+                                value={editForm.start_date || ''}
+                                onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                                required
+                              >
+                                <option value="">Select day</option>
+                                <option value="monday">Monday</option>
+                                <option value="tuesday">Tuesday</option>
+                                <option value="wednesday">Wednesday</option>
+                                <option value="thursday">Thursday</option>
+                                <option value="friday">Friday</option>
+                                <option value="saturday">Saturday</option>
+                                <option value="sunday">Sunday</option>
+                              </select>
+                            ) : (
+                              <select
+                                value={editForm.start_date || ''}
+                                onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                                required
+                              >
+                                <option value="">Select date</option>
+                                {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                                  <option key={day} value={day.toString()}>{day}</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-4">
                         <input
                           type="time"
                           value={editForm.schedule_time || '07:00'}
